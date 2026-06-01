@@ -30,7 +30,14 @@ class Bank:
         spchar = random.choices("!@#$%^&*", k = 1)
         id = alpha + num + spchar
         random.shuffle(id)
-        return "".join(id)
+        id = "".join(id)
+        
+        exists = [i for i in cls.data if i["Account_NO."] == id]
+        if len(exists) == 0:
+            return id
+        else:
+            print("duplicate account number created !!!")
+    
         
     def create_account(self):
         
@@ -38,22 +45,31 @@ class Bank:
         while True:
             email = input("tell your email: ")
             pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
             
             if re.match(pattern, email):
-                break
+                exits = [i for i in Bank.data if i['email'] == email]
+                if len(exits)>0:
+                    print("this email is already registerd !!!")
+                else:
+                    break
             else:
                 print("invalid email format please try again ")
+            
+    
     
         info = {
             "name" : input("tell your name :"),
             "age" : int(input("tell your age :")),
             "email" : email,
-            "pin"  : int(input("please enter a new pin :")),
+            "pin"  : int(input("please enter a new pin only 4 digits :")),
             "Account_NO." : Bank.__accountgenerate(),
             "balance" : 0
         }
-        if info['age']< 18 or len(str(info['pin'])) != 4:
-            print("sorry you can't create account ")
+        
+        
+        if info['age']< 18 or len(str(info['pin'])) != 4 or type(info['pin']) != int:
+                print("sorry you can't create account because of either under age or wrong pin type")
         else:
             print("your account has been created successfully ")
             for i in info:
@@ -71,15 +87,17 @@ class Bank:
         
         userdata = [i for i in Bank.data if i['Account_NO.'] == acnum and i['pin'] == pin]
         userdata = userdata[0]
-        if userdata == False:
+        if len(userdata) == 0:
             print("sorry no data found")
+            return
             
         else:
             amount = int(input("how much amount you want to deposit "))
-            if amount < 0:
+            if amount <= 0:
                 print("invalid amount")
             else:
                 userdata['balance'] += amount
+                print("\nAmount deposit successfully ")
                 Bank.__update()
      
                 
@@ -90,13 +108,14 @@ class Bank:
         
         userdata = [i for i in Bank.data if i['Account_NO.'] == acnum and i['pin'] == pin]
         userdata = userdata[0]
-        if userdata == False:
+        if len(userdata) == 0:
             print("sorry no data found")
+            return
             
         else:
             print(f"\nyour account balance is : {userdata['balance']}")
             amount = int(input("how much amount you want to withdraw : "))
-            if amount < 0 or amount > userdata['balance']:
+            if amount <= 0 or amount > userdata['balance']:
                 print("\ninvalid amount or you are trying to withdraw more than balance")
             else:
                 userdata['balance'] -= amount
@@ -112,9 +131,10 @@ class Bank:
         userdata = [i for i in Bank.data if i['Account_NO.'] == acnum and i['pin'] == pin]
         userdata = userdata[0]
     
-        if userdata == False:
+        if len(userdata) == 0:
             print("sorry no data found")
-        
+            return
+                
         else:
             print("your details are :---- \n")
             for i in userdata:
@@ -129,8 +149,10 @@ class Bank:
         userdata = [i for i in Bank.data if i['Account_NO.'] == acnum and i['pin'] == pin]
         userdata = userdata[0]
         
-        if userdata == False:
-            print("no such user found")
+        if len(userdata) == 0:
+            print("sorry no data found")
+            return
+        
         else:
             print("you cannot change the age, account number, balance")
             print("fill the details for change or press enter for no change")
@@ -173,8 +195,9 @@ class Bank:
         userdata = [i for i in Bank.data if i['Account_NO.'] == acnum and i['pin'] == pin]
         userdata = userdata[0]
         
-        if userdata == False:
-            print("no such user found")
+        if len(userdata) == 0:
+            print("sorry no data found")
+            return
         else:
             check = input("press 'y' if you actually want to delete your acccount and 'n' if won't ")
             
@@ -184,7 +207,7 @@ class Bank:
                 index = Bank.data.index(userdata)
                 Bank.data.pop(index)
                 print("your account deleted successfully ! ")
-                Bank.__update
+                Bank.__update()
             
             
             
@@ -196,22 +219,25 @@ print("press 4 to Check Details")
 print("press 5 to Update Details")
 print("press 6 to Delete or Closure of Account")
 
-check = int(input("please give us your response: "))
+check = int(input("please give us your response between 1 to 6 : "))
 
 if check  == 1:
     user.create_account()
     
-if check == 2:
+elif check == 2:
     user.deposit_money()
     
-if check == 3:
+elif check == 3:
     user.withdraw_money()
     
-if check == 4:
+elif check == 4:
     user.show_details()
     
-if check == 5:
+elif check == 5:
     user.update_details()
     
-if check == 6:
+elif check == 6:
     user.user_delete()
+    
+else:
+    print("invalid choice")
